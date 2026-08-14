@@ -1,0 +1,9 @@
+{
+  "name": "gtools",
+  "description": "GitHub workflow tools: PR thread management, branch squash, and timesheet updates.",
+  "version": "1.0.0",
+  "author": {
+    "name": "argami",
+    "email": "argami@gmail.com"
+  }
+}
