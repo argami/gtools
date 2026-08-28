@@ -5,6 +5,7 @@ description: >-
   message from the full history. Optionally updates the associated PR description.
   Always shows a plan and waits for explicit user approval before executing.
 argument-hint: "--base [branch] --message [msg] --no-pr"
+when_to_use: Use when consolidating multiple commits into one before merging a feature branch, with optional custom message and PR description update.
 arguments:
   - name: --base
     description: "Base branch to calculate commits from (default: main)"
