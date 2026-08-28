@@ -1,24 +1,30 @@
 {
-    "hooks": {
-        "PreToolUse": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "if echo \"$CLAUDE_TOOL_INPUT\" | tee -a /tmp/pre_claudecode_tooluse.log | grep -qE 'git commit'; then echo 'Reminder: run the pre-commit-review skill (code-review) and resolve all issues before completing this commit.' >&2; fi"
-                    }
-                ]
-            }
-        ],
-        "PostToolUse": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "if echo \"$CLAUDE_TOOL_INPUT\" | tee -a /tmp/post_claudecode_tooluse.log | grep -qE '\\bgit push\\b'; then echo 'A git push was just made. Use the post-push-review skill now: watch the code-review GitHub Action run for this branch, then fetch and resolve any PR review comments/issues it reports, committing and pushing fixes, repeating until clean or asking the user if something cannot be resolved automatically.' >&2; fi"
-                    }
-                ]
-            }
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "echo '{\"systemMessage\": \"Reminder: run /gtools:pre-commit-review and resolve all issues before completing this commit.\"}'",
+            "timeout": 5
+          }
         ]
-    }
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git push*)",
+            "command": "echo '{\"systemMessage\": \"A git push was made. Run /gtools:post-push-review now: watch the code-review GitHub Action, fix any reported issues, commit and push again until clean.\"}'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }
