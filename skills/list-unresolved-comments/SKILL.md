@@ -1,14 +1,9 @@
 ---
-name: GitHub Unresolved Review Threads
+name: list-unresolved-comments
 description: >-
-  List all unresolved review threads on a GitHub PR. Use this skill whenever
-  the user asks to see open review comments, unresolved threads, pending
-  feedback, or wants to know what review items are left to address — even if
-  they don't use the exact words "unresolved threads". Works on the current
-  repo and PR automatically. Also use when the user wants to bulk-resolve
-  threads after reviewing them. Supports an optional --outdated-only flag to
-  show only threads that are both unresolved and outdated.
-author: argami@gmail.com
+  List all unresolved review threads on a GitHub PR.
+when_to_use: Use this skill whenever the user asks to see open review comments, unresolved threads, pending feedback, or wants to know what review items are left to address — even if they don't use the exact words "unresolved threads". Works on the current repo and PR automatically. Also use when the user wants to bulk-resolve threads after reviewing them. Supports an optional --outdated-only flag to show only threads that are both unresolved and outdated.
+argument-hint: "--outdated-only"
 arguments:
   - name: --outdated-only
     description: Show only threads that are both unresolved and outdated

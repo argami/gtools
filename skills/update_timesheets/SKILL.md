@@ -1,7 +1,6 @@
 ---
-name: update_timesheets
+name: update-timesheets
 description: Updates BambooHR timesheet entries, automatically calculating hours based on day of week. Use when the user asks to "update timesheets", "fill in hours", "clock in/out", "actualizar timesheets", "rellenar horas" or similar, in English or Spanish, specifying dates in natural language, a range, or a list.
-author: argami@gmail.com
 arguments:
   - name: <dates>
     description: "Dates in natural language: today, this week, 2026-08-14, ranges (2026-08-10...2026-08-14), weekday names, or Spanish equivalents"

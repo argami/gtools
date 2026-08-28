@@ -1,12 +1,13 @@
 ---
-name: GitHub Resolve Review Threads
+name: resolve-review-comments
 description: >-
   Bulk resolve unresolved review threads on a GitHub PR. Use this skill when
   the user asks to resolve, mark as resolved, or close review threads, comments,
   or feedback. Works on the current repo and PR automatically. Supports optional
   --outdated-only flag to resolve only outdated threads instead of all unresolved
   ones.
-author: argami@gmail.com
+when_to_use: Use this skill when the user asks to resolve, mark as resolved, or close review threads, comments, or feedback. Works on the current repo and PR automatically. Supports optional --outdated-only flag to resolve only outdated threads instead of all unresolved ones.
+argument-hint: "--outdated-only"
 arguments:
   - name: --outdated-only
     description: Resolve only threads that are both unresolved and outdated

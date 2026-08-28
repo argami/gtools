@@ -1,10 +1,10 @@
 ---
-name: Squash Branch
+name: squash-branch
 description: >-
   Squash all commits on the current branch into one, generating a rich commit
   message from the full history. Optionally updates the associated PR description.
   Always shows a plan and waits for explicit user approval before executing.
-author: argami@gmail.com
+argument-hint: "--base [branch] --message [msg] --no-pr"
 arguments:
   - name: --base
     description: "Base branch to calculate commits from (default: main)"
