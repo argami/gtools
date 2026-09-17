@@ -9,23 +9,39 @@ A Claude Code plugin providing specialized skills for GitHub workflow automation
 - Git
 - GitHub CLI (`gh`) for GitHub-related skills
 
-### Install the Plugin
+### Option 1 — Direct install (no clone required)
 
-1. In Claude Code, open **Settings** → **Plugins**
-2. Click **Install from repository**
-3. Paste: `https://github.com/yourusername/gtools` (or your local path)
-4. Click **Install**
-
-The plugin will be registered as `gtools:` and all skills will be available as `/gtools:skill-name`.
-
-Alternatively, if using the CLI:
 ```bash
-claude plugin install /path/to/gtools
+claude --plugin-url https://github.com/argami/gtools/archive/refs/heads/main.zip
+```
+
+### Option 2 — Add as personal marketplace
+
+```
+/plugin marketplace add argami/gtools
+```
+
+Then install:
+
+```
+/plugin install gtools
+```
+
+### Option 3 — From community marketplace (after approval)
+
+```
+/plugin install gtools@claude-community
+```
+
+### Option 4 — Local path (development)
+
+```bash
+claude --plugin-dir /path/to/gtools
 ```
 
 ### Verify Installation
 
-In Claude Code, type `/gtools:` and you should see autocomplete suggestions for all 7 skills.
+Type `/gtools:` in Claude Code — you should see autocomplete suggestions for all 7 skills.
 
 ---
 
@@ -128,7 +144,7 @@ gtools/
 
 ### Naming Convention
 
-All skills use kebab-case names matching their directory names (e.g., `update-timesheets`, not `update_timesheets`).
+Skill directories use kebab-case (e.g., `squash-branch`, `resolve-comments`). The exception is `update_timesheets` which uses underscores to match its slash command `/gtools:update_timesheets`.
 
 ### Dependencies
 

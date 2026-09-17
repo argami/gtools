@@ -11,7 +11,7 @@ Consolidate all commits on the current branch into a single commit with an auto-
 You'll see:
 1. **Plan**: number of commits to squash, list of commits, proposed message
 2. **Prompt**: "Proceed with squash? Reply **yes** to execute, **no** to cancel, or paste an edited message"
-3. **Result**: commits are consolidated, branch is pushed (if needed), PR description is updated (optional)
+3. **Result**: commits are consolidated into one, you push manually, PR description is updated (optional)
 
 ## Usage
 

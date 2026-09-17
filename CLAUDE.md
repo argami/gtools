@@ -36,7 +36,7 @@ Available skills:
 
 1. **squash-branch** — consolidate all commits since a base branch into one, with auto-generated message
 2. **resolve-comments** — bulk resolve unresolved review threads on a PR via GitHub GraphQL
-3. **list-unresolved-comments** — fetch and display unresolved review threads (alias: `gh-unresolved-threads` → `list-unresolved-comments`)
+3. **list-unresolved-comments** — fetch and display unresolved review threads
 4. **post-push-review** — watch the code-review GitHub Action after push, fix issues, re-push until clean
 5. **pre-commit-review** — run code-review skill before committing, iterate until issues resolved
 6. **update_timesheets** — submit BambooHR timesheet entries with date parsing and shift calculation

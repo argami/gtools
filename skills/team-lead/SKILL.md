@@ -1,9 +1,11 @@
 ---
+name: team-lead
 description: >-
   Orchestrate an Agent Teams (Lead + Developer-A + Developer-B + Reviewer)
   run against a tasks.md plan, with a full git branch/rebase/ff-only-merge
-  workflow. Uses git worktrees per Developer-By default; pass "no-worktrees" to
+  workflow. Uses git worktrees per Developer by default; pass "no-worktrees" to
   disable.
+when_to_use: Use to orchestrate multi-developer task execution with parallel agents, git worktrees, and automated review/merge workflow from a tasks.md plan.
 argument-hint: <path-to-tasks.md> [no-worktrees]
 ---
 

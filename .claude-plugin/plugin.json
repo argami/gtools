@@ -1,9 +1,17 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "gtools",
-  "description": "GitHub workflow tools: PR thread management, branch squash, and timesheet updates.",
+  "displayName": "gtools — GitHub Workflow Automation",
   "version": "1.0.0",
+  "description": "GitHub workflow automation: squash branches, manage PR review threads, automate timesheets, and orchestrate multi-agent task execution.",
   "author": {
     "name": "argami",
-    "email": "argami@gmail.com"
-  }
+    "email": "argami@gmail.com",
+    "url": "https://github.com/argami"
+  },
+  "homepage": "https://github.com/argami/gtools#readme",
+  "repository": "https://github.com/argami/gtools",
+  "license": "MIT",
+  "keywords": ["github", "git", "pr", "review", "squash", "timesheets", "bamboohr", "workflow", "automation"],
+  "hooks": "./hooks/hooks.json"
 }

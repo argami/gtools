@@ -1,5 +1,5 @@
 ---
-name: resolve-review-comments
+name: resolve-comments
 description: >-
   Bulk resolve unresolved review threads on a GitHub PR. Use this skill when
   the user asks to resolve, mark as resolved, or close review threads, comments,
@@ -102,5 +102,5 @@ When `--outdated-only` was used, note it in the summary: **"Resolved X outdated 
 
 - The `id` field is the GitHub node ID (starts with `PR_` followed by alphanumerics).
 - If a mutation fails, report which thread ID failed and the error message.
-- Do NOT resolve threads unless the user explicitly asks (Step 2 of `/gtools:gh-unresolved-threads` keeps them in context for this purpose).
+- Do NOT resolve threads unless the user explicitly asks (Step 2 of `/gtools:list-unresolved-comments` keeps them in context for this purpose).
 - Authentication must have write access to the PR's repo.
