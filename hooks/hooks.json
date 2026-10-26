@@ -6,7 +6,13 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git *)|Bash(rtk *)",
+            "if": "Bash(git *)",
+            "command": "./src/before-commit.sh",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "if": "Bash(rtk *)",
             "command": "./src/before-commit.sh",
             "timeout": 5
           }
@@ -19,7 +25,13 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git *)|Bash(rtk *)",
+            "if": "Bash(git *)",
+            "command": "./src/after-push.sh",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "if": "Bash(rtk *)",
             "command": "./src/after-push.sh",
             "timeout": 5
           }
