@@ -12,7 +12,7 @@
           },
           {
             "type": "command",
-            "if": "Bash(rtk *)",
+            "if": "Bash(rtk git *)",
             "command": "./src/before-commit.sh",
             "timeout": 5
           }
@@ -31,7 +31,7 @@
           },
           {
             "type": "command",
-            "if": "Bash(rtk *)",
+            "if": "Bash(rtk git *)",
             "command": "./src/after-push.sh",
             "timeout": 5
           }
