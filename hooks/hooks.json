@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git commit*)",
-            "command": "echo '{\"systemMessage\": \"Reminder: run /gtools:pre-commit-review and resolve all issues before completing this commit.\"}'",
+            "if": "Bash(git *)",
+            "command": "./src/before-commit.sh",
             "timeout": 5
           }
         ]
@@ -19,8 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git push*)",
-            "command": "echo '{\"systemMessage\": \"A git push was made. Run /gtools:post-push-review now: watch the code-review GitHub Action, fix any reported issues, commit and push again until clean.\"}'",
+            "if": "Bash(git *)",
+            "command": "./src/after-push.sh",
             "timeout": 5
           }
         ]

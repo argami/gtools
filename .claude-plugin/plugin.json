@@ -12,6 +12,16 @@
   "homepage": "https://github.com/argami/gtools#readme",
   "repository": "https://github.com/argami/gtools",
   "license": "MIT",
-  "keywords": ["github", "git", "pr", "review", "squash", "timesheets", "bamboohr", "workflow", "automation"],
+  "keywords": [
+    "github",
+    "git",
+    "pr",
+    "review",
+    "squash",
+    "timesheets",
+    "bamboohr",
+    "workflow",
+    "automation"
+  ],
   "hooks": "./hooks/hooks.json"
 }
