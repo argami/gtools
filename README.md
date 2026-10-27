@@ -47,23 +47,15 @@ Type `/gtools:` in Claude Code — you should see autocomplete suggestions for a
 
 ## Skills Overview
 
-| Skill | Trigger | Usage | Parameters |
-|-------|---------|-------|-----------|
-| **squash-branch** | Manual | Consolidate all commits on the current branch into one with auto-generated commit message. | `[--base branch] [--message msg] [--no-pr]` |
-| **list-unresolved-comments** | Manual | Fetch and display all unresolved review threads on the current PR. | `[--outdated-only]` |
-| **resolve-comments** | Manual | Bulk resolve unresolved (or outdated) review threads on a PR. | `[--outdated-only]` |
-| **pre-commit-review** | Auto (pre-commit hook) | Runs code-review before every commit, iterates fixing issues. | *(none)* |
-| **post-push-review** | Auto (post-push hook) | Watches code-review CI after push, auto-fixes PR comments, re-pushes. | *(none)* |
-| **update_timesheets** | Manual | Submit BambooHR timesheet entries with automatic shift calculation. | `<dates> [dry-run] [session=...] [csrf=...] [employeeId=...] [verbose]` |
-| **team-lead** | Manual | Orchestrate multi-agent task execution with Developer-A, Developer-B, and Reviewer. | `<tasks.md> [no-worktrees]` |
-
-### Quick Links
-
-- **Branch Management**: [`squash-branch`](skills/squash-branch)
-- **PR Review**: [`list-unresolved-comments`](skills/list-unresolved-comments), [`resolve-comments`](skills/resolve-comments)
-- **CI/Review Automation**: [`pre-commit-review`](skills/pre-commit-review), [`post-push-review`](skills/post-push-review)
-- **Timesheet**: [`update_timesheets`](skills/update_timesheets)
-- **Team Coordination**: [`team-lead`](skills/team-lead)
+| Skill | Description |
+|-------|-------------|
+| [**squash-branch**](skills/squash-branch/README.md) | Consolidate all commits on the current branch into one with an auto-generated commit message. |
+| [**list-unresolved-comments**](skills/list-unresolved-comments/SKILL.md) | Fetch and display all unresolved review threads on the current PR. |
+| [**resolve-comments**](skills/resolve-comments/SKILL.md) | Bulk resolve unresolved (or outdated) review threads on a PR. |
+| [**pre-commit-review**](skills/pre-commit-review/SKILL.md) | Run code-review before every commit, iterate fixing issues. Auto-triggered by hook. |
+| [**post-push-review**](skills/post-push-review/SKILL.md) | Watch the code-review CI after push, auto-fix PR comments, re-push until clean. Auto-triggered by hook. |
+| [**update_timesheets**](skills/update_timesheets/README.md) | Submit BambooHR timesheet entries with automatic shift calculation. |
+| [**team-lead**](skills/team-lead/README.md) | Orchestrate multi-agent task execution with Developer-A, Developer-B, and Reviewer. |
 
 ---
 
@@ -176,14 +168,29 @@ export TYPESAFE_API_KEY=your_key_here
 
 ## Hooks
 
-The plugin registers two Claude Code hooks in `hooks/hooks.json`:
+gtools registers two Claude Code hooks that fire automatically — no manual invocation needed. They are active whenever the plugin is installed.
 
-| Hook | Trigger | Action |
-|------|---------|--------|
-| **PreToolUse** | Before `git commit` or `rtk git commit` | **Blocks** the commit and triggers `pre-commit-review`. Allows through once the skill creates `/tmp/gtools-review-<sha256-hash>` (hash of project dir + staged diff). |
-| **PostToolUse** | After `git push` or `rtk git push` | Injects context instructing Claude to run `post-push-review` skill. |
+### Pre-commit — code review gate
 
-Hook logic lives in `skills/pre-commit-review/src/before-commit.sh` and `skills/post-push-review/src/after-push.sh`. These can be disabled in Claude Code settings if desired.
+**Trigger:** any `git commit` (or `rtk git commit`) Bash call.
+
+The hook checks for an approval marker at `/tmp/gtools-review-<sha256-hash>` (hash of project dir + staged diff). If absent, the commit is **blocked** and Claude is instructed to run `/gtools:pre-commit-review`, which:
+
+1. Runs the `code-review` skill on the staged changes (if installed)
+2. Iterates fixing any reported issues
+3. Creates the approval marker in a separate Bash call, then retries the commit
+
+The two-call pattern is required: the hook fires at the *tool-call boundary*, so the marker must exist before `git commit` runs.
+
+### Post-push — CI watch loop
+
+**Trigger:** any `git push` (or `rtk git push`) Bash call.
+
+After a push, the hook injects context prompting Claude to run `/gtools:post-push-review`, which watches the code-review GitHub Action, applies fixes, commits, and re-pushes until the Action passes.
+
+### Disabling
+
+Hook definitions live in [`hooks/hooks.json`](hooks/hooks.json) and can be disabled in Claude Code settings.
 
 ---
 
