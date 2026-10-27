@@ -25,25 +25,18 @@ Ensure that no commit is made without first running an automated code review (vi
       - Ask the user how to proceed (fix manually, accept the risk, or mark it as a known false positive).
       - Do not commit until the user explicitly confirms how to handle the remaining issue(s).
    4. Only proceed to commit once `code-review` reports zero issues, or the user has explicitly approved proceeding despite specific known issues.
-   5. Create the approval marker and immediately run `git commit` in a single compound command (staging area must not change between the two steps):
+   5. Create the approval marker in a **separate Bash call** (no `git commit` in this call — the PreToolUse hook fires at the tool-call boundary, so the marker must exist before the commit call is made):
+      ```bash
+      command -v sha256sum >/dev/null 2>&1 && HASHER="sha256sum" || HASHER="shasum -a 256"
+      HASH=$( { printf '%s\n' "${CLAUDE_PROJECT_DIR:-$(pwd)}"; git diff --staged; } | $HASHER | cut -d' ' -f1)
+      touch "/tmp/gtools-review-${HASH}"
       ```
-      cd "${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}" && \
-      command -v sha256sum >/dev/null 2>&1 && HASHER="sha256sum" || HASHER="shasum -a 256" && \
-      HASH=$( { printf '%s\n' "${CLAUDE_PROJECT_DIR:-$(pwd)}"; git diff --staged; } | $HASHER | cut -d' ' -f1) && \
-      touch "/tmp/gtools-review-${HASH}" && \
+      Then commit in a **second, separate Bash call** — the hook fires here, finds the marker, and allows the commit through:
+      ```bash
       git commit -m "<your commit message>"
       ```
-      This tells the PreToolUse hook to allow this exact commit through without blocking again.
 3. **If `code-review` is not installed**:
-   - Create the approval marker and commit in one command (same as above):
-      ```
-      cd "${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}" && \
-      command -v sha256sum >/dev/null 2>&1 && HASHER="sha256sum" || HASHER="shasum -a 256" && \
-      HASH=$( { printf '%s\n' "${CLAUDE_PROJECT_DIR:-$(pwd)}"; git diff --staged; } | $HASHER | cut -d' ' -f1) && \
-      touch "/tmp/gtools-review-${HASH}" && \
-      git commit -m "<your commit message>"
-      ```
-   - Proceed with the commit as usual.
+   - Create the approval marker in a separate Bash call (same as step 2.5 above), then run `git commit` in a second separate Bash call.
    - Mention in the final summary that the skill was not available and therefore no automated review was performed.
 
 ## Notes
