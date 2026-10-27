@@ -26,7 +26,7 @@ arguments:
 
 # Update Timesheets
 
-Submits timesheet entries to BambooHR via `POST https://wizeline.bamboohr.com/timesheet/clock/entries`. There is no separate script: you (the agent) interpret the user's request, compute the dates and shifts yourself, manage credentials via the filesystem, and send the requests with `curl` using your bash tool. Works with requests in **English or Spanish** — always reply to the user in the language they used.
+Submits timesheet entries to BambooHR via `POST https://<BAMBOOHR_DOMAIN>.bamboohr.com/timesheet/clock/entries`. There is no separate script: you (the agent) interpret the user's request, compute the dates and shifts yourself, manage credentials via the filesystem, and send the requests with `curl` using your bash tool. Works with requests in **English or Spanish** — always reply to the user in the language they used.
 
 ## 1. Resolve the dates yourself
 
@@ -43,6 +43,8 @@ Use today's actual date (from the system/session context) as the reference point
 
 ## 2. Compute the shift for each date
 
+> **Note:** The shift schedule below is an example. Edit these times to match your company's working hours before using this skill.
+
 Apply these rules based on day of week, and drop any date that falls on Saturday or Sunday (no shift):
 
 - Monday–Thursday: `09:00-13:00` and `14:00-18:30` (two entries)
@@ -55,6 +57,7 @@ If the user includes any of these in their message, use them instead of stored/d
 
 - `session=<value>` → PHPSESSID
 - `csrf=<value>` → x-csrf-token
+- `domain=<value>` → BambooHR company subdomain (e.g. `domain=wizeline` → uses `wizeline.bamboohr.com`)
 - `employeeId=<value>` → employee ID (no default — see step 4 if not provided/stored)
 - **dry-run intent** — call TypeSafe with a Noul question (catches all phrasings in any language):
   ```bash
@@ -90,11 +93,12 @@ Expected shape:
 {
   "phpsessid": "...",
   "csrf_token": "...",
-  "employee_id": 5010
+  "employee_id": 5010,
+  "bamboohr_domain": "your-subdomain"
 }
 ```
 
-Resolution order, applied independently to each of the three values (`phpsessid`, `csrf_token`, `employee_id`) — same order for normal runs and dry-runs:
+Resolution order, applied independently to each of the four values (`phpsessid`, `csrf_token`, `employee_id`, `bamboohr_domain`) — same order for normal runs and dry-runs:
 1. Value passed in the current prompt (`session=`, `csrf=`, `employeeId=`).
 2. Value stored in `~/.timesheets_config.json`.
 3. If a value isn't found in either place, **stop and ask the user** for just that missing value (see "How to ask for missing values" below). Never invent, placeholder, guess, or default any of these — including `employee_id` (there is no default; it must come from the prompt, the file, or the user). This applies in dry-run mode too, and even if the user only asked for a "preview" or "simulation".
@@ -106,7 +110,8 @@ cat > ~/.timesheets_config.json << 'EOF'
 {
   "phpsessid": "VALUE",
   "csrf_token": "VALUE",
-  "employee_id": VALUE
+  "employee_id": VALUE,
+  "bamboohr_domain": "VALUE"
 }
 EOF
 ```
@@ -123,9 +128,9 @@ Neither preset option should look like it contains or should contain the real va
 
 If you need to explain how to find `PHPSESSID`/`x-csrf-token` before asking (e.g. first time, or the user seems unsure), give this explanation in chat first, then open the interactive question tool:
 
-1. Open `https://wizeline.bamboohr.com` in the browser.
+1. Open `https://<BAMBOOHR_DOMAIN>.bamboohr.com` in the browser.
 2. Open Developer Tools (F12 or Cmd+Option+I).
-3. Application → Cookies → `wizeline.bamboohr.com` → copy the value of `PHPSESSID`.
+3. Application → Cookies → `<BAMBOOHR_DOMAIN>.bamboohr.com` → copy the value of `PHPSESSID`.
 4. Network → reload the page → click any POST request to `entries`.
 5. In Headers, copy the value of `x-csrf-token`.
 
@@ -149,11 +154,11 @@ Keep this exact table (same rows, same order) in memory: you will re-render it i
 For each valid date, build the JSON body and send it. Example for a Monday–Thursday date (two entries):
 
 ```bash
-curl -s -X POST "https://wizeline.bamboohr.com/timesheet/clock/entries" \
+curl -s -X POST "https://<BAMBOOHR_DOMAIN>.bamboohr.com/timesheet/clock/entries" \
   -H "accept: application/json, text/plain, */*" \
   -H "content-type: application/json;charset=UTF-8" \
-  -H "origin: https://wizeline.bamboohr.com" \
-  -H "referer: https://wizeline.bamboohr.com/employees/timesheet/" \
+  -H "origin: https://<BAMBOOHR_DOMAIN>.bamboohr.com" \
+  -H "referer: https://<BAMBOOHR_DOMAIN>.bamboohr.com/employees/timesheet/" \
   -H "x-csrf-token: <CSRF_TOKEN>" \
   -b "PHPSESSID=<PHPSESSID>" \
   --data-raw '{

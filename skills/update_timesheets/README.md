@@ -46,14 +46,14 @@ Shifts are calculated automatically based on day of week:
 
 | Day | Shift | Duration |
 |-----|-------|----------|
-| Monday–Thursday | 09:00–13:00, 14:00–18:30 | Two 4.5h entries |
+| Monday–Thursday | 09:00–13:00, 14:00–18:30 | Two 4h entries |
 | Friday | 09:00–15:00 | One 6h entry |
 | Saturday/Sunday | *(skip)* | No entry submitted |
 
 For example, if you submit timesheets for "this week" (Mon–Fri):
-- Mon, Tue, Wed, Thu: 4 separate 4.5-hour entries (1 morning, 1 afternoon each)
+- Mon, Tue, Wed, Thu: 4 separate 4-hour entries (1 morning, 1 afternoon each)
 - Friday: 1 six-hour entry
-- Total: 24 hours (18 + 6)
+- Total: 38 hours/week (32h Mon–Thu + 6h Fri)
 
 ## Usage
 
@@ -67,7 +67,7 @@ Prompts for credentials (first time), shows a summary table, asks for confirmati
 ```bash
 /gtools:update_timesheets this week dry-run
 ```
-Shows what *would* be submitted — no requests sent, credentials not saved (even if you provide them this run).
+Shows what *would* be submitted — no requests sent. Credentials provided this run are not saved, but are still required.
 
 ### Custom credentials this run (override stored)
 ```bash
@@ -97,10 +97,10 @@ The first time you use this skill, you'll be asked for three values:
 
 **How to find them:**
 
-1. Open `https://wizeline.bamboohr.com` in your browser
+1. Open `https://<your-domain>.bamboohr.com` in your browser
 2. Open Developer Tools (F12 or Cmd+Option+I)
 3. **For PHPSESSID:**
-   - Go to Application → Cookies → `wizeline.bamboohr.com`
+   - Go to Application → Cookies → `<your-domain>.bamboohr.com`
    - Copy the value of `PHPSESSID`
 4. **For x-csrf-token:**
    - Go to Network tab → reload the page

@@ -46,7 +46,7 @@ Available skills:
 
 Two hooks are defined in `hooks/hooks.json`:
 
-- **PreToolUse (git commit)**: reminds user to run pre-commit-review skill before committing
+- **PreToolUse (git commit)**: **blocks** the commit until pre-commit-review creates an approval marker
 - **PostToolUse (git push)**: reminds user to run post-push-review skill after pushing
 
 ## Skill Development
@@ -108,7 +108,7 @@ Skills that interact with GitHub (`resolve-comments`, `list-unresolved-comments`
 
 ### BambooHR Timesheet API
 
-- `update_timesheets` skill submits entries to `POST https://wizeline.bamboohr.com/timesheet/clock/entries`
+- `update_timesheets` skill submits entries to `POST https://<BAMBOOHR_DOMAIN>.bamboohr.com/timesheet/clock/entries`
 - Credentials: PHPSESSID (cookie), x-csrf-token (header), employee_id (payload)
 - Shift schedule: Mon–Thu 9–1, 2–6:30; Friday 9–3; weekends skipped
 - Credentials cached in `~/.timesheets_config.json` for future runs

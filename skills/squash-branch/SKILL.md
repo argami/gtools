@@ -218,10 +218,11 @@ EOF
 Only if `HAS_PR=true` and `SKIP_PR=false`:
 
 ```bash
-gh pr edit <PR_NUMBER> --body "<new PR description>"
+gh pr edit <PR_NUMBER> --body "$(cat <<'EOF'
+<new PR description>
+EOF
+)"
 ```
-
-Use `--body` with a heredoc via `$(cat <<'EOF' ... EOF)` to handle multi-line content safely.
 
 ---
 

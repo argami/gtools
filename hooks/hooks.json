@@ -8,13 +8,13 @@
             "type": "command",
             "if": "Bash(git *)",
             "command": "${CLAUDE_PLUGIN_ROOT}/skills/pre-commit-review/src/before-commit.sh",
-            "timeout": 5
+            "timeout": 30
           },
           {
             "type": "command",
             "if": "Bash(rtk git *)",
             "command": "${CLAUDE_PLUGIN_ROOT}/skills/pre-commit-review/src/before-commit.sh",
-            "timeout": 5
+            "timeout": 30
           }
         ]
       }
@@ -27,13 +27,13 @@
             "type": "command",
             "if": "Bash(git *)",
             "command": "${CLAUDE_PLUGIN_ROOT}/skills/post-push-review/src/after-push.sh",
-            "timeout": 5
+            "timeout": 30
           },
           {
             "type": "command",
             "if": "Bash(rtk git *)",
             "command": "${CLAUDE_PLUGIN_ROOT}/skills/post-push-review/src/after-push.sh",
-            "timeout": 5
+            "timeout": 30
           }
         ]
       }

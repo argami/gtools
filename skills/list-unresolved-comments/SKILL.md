@@ -47,6 +47,7 @@ query($owner: String!, $repo: String!, $number: Int!) {
     pullRequest(number: $number) {
       reviewThreads(first: 100) {
         totalCount
+        pageInfo { hasNextPage endCursor }
         nodes {
           id
           isResolved
@@ -64,13 +65,13 @@ query($owner: String!, $repo: String!, $number: Int!) {
       }
     }
   }
-}' | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)]'
+}' | jq -s '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)]'
 ```
 
 **If `--outdated-only` flag is passed**, modify the `jq` filter to also require `isOutdated: true`:
 
 ```bash
-| jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false and .isOutdated == true)]'
+| jq -s '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false and .isOutdated == true)]'
 ```
 
 ### Step 4 — Display results

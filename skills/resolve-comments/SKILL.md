@@ -50,6 +50,7 @@ query($owner: String!, $repo: String!, $number: Int!) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $number) {
       reviewThreads(first: 100) {
+        pageInfo { hasNextPage endCursor }
         nodes {
           id
           isResolved
@@ -60,13 +61,13 @@ query($owner: String!, $repo: String!, $number: Int!) {
       }
     }
   }
-}' | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id]'
+}' | jq -s '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id]'
 ```
 
 **If `--outdated-only` flag is passed**, modify the filter to also require `isOutdated: true`:
 
 ```bash
-| jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false and .isOutdated == true) | .id]'
+| jq -s '[.[].data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false and .isOutdated == true) | .id]'
 ```
 
 Store the array of IDs from the jq output.
@@ -102,7 +103,7 @@ When `--outdated-only` was used, note it in the summary: **"Resolved X outdated 
 
 ### Notes
 
-- The `id` field is the GitHub node ID (starts with `PR_` followed by alphanumerics).
+- The `id` field is the GitHub node ID (starts with `PRRT_` followed by alphanumerics).
 - If a mutation fails, report which thread ID failed and the error message.
 - Do NOT resolve threads unless the user explicitly asks (Step 2 of `/gtools:list-unresolved-comments` keeps them in context for this purpose).
 - Authentication must have write access to the PR's repo.

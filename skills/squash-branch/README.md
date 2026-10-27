@@ -70,7 +70,7 @@ Presents the full plan and asks:
 - **paste a message** → use your custom message instead
 
 ### Phase 4: Execute
-1. Stages all changes and resets to base branch tip
+1. Resets HEAD to the base branch tip with `git reset --soft`, preserving all changes in the working tree
 2. Creates a new commit with the approved message (or your custom one)
 3. Updates PR description (if applicable)
 4. Reports the new commit hash
