@@ -129,13 +129,17 @@ gtools/
 ├── .claude-plugin/
 │   └── plugin.json                    # Plugin metadata
 ├── hooks/
-│   └── hooks.json                     # Pre/post-commit hooks
+│   └── hooks.json                     # Pre/post-commit hook definitions (uses ${CLAUDE_PLUGIN_ROOT})
 └── skills/
     ├── squash-branch/
     ├── resolve-comments/
     ├── list-unresolved-comments/
     ├── pre-commit-review/
+    │   └── src/
+    │       └── before-commit.sh       # Blocks commit, checks /tmp/gtools-review-passed marker
     ├── post-push-review/
+    │   └── src/
+    │       └── after-push.sh          # Injects post-push review context
     ├── update_timesheets/
     │   └── README.md                  # Detailed usage
     └── team-lead/
@@ -160,10 +164,10 @@ The plugin registers two Claude Code hooks in `hooks/hooks.json`:
 
 | Hook | Trigger | Action |
 |------|---------|--------|
-| **PreToolUse** | Before `git commit` | Reminds to run `pre-commit-review` skill |
-| **PostToolUse** | After `git push` | Reminds to run `post-push-review` skill |
+| **PreToolUse** | Before `git commit` or `rtk git commit` | **Blocks** the commit and triggers `pre-commit-review`. Only allows through once the skill creates `/tmp/gtools-review-passed`. |
+| **PostToolUse** | After `git push` or `rtk git push` | Injects context instructing Claude to run `post-push-review` skill. |
 
-These can be disabled in Claude Code settings if desired.
+Hook logic lives in `skills/pre-commit-review/src/before-commit.sh` and `skills/post-push-review/src/after-push.sh`. These can be disabled in Claude Code settings if desired.
 
 ---
 

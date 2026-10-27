@@ -25,7 +25,9 @@ Ensure that no commit is made without first running an automated code review (vi
       - Ask the user how to proceed (fix manually, accept the risk, or mark it as a known false positive).
       - Do not commit until the user explicitly confirms how to handle the remaining issue(s).
    4. Only proceed to commit once `code-review` reports zero issues, or the user has explicitly approved proceeding despite specific known issues.
+   5. Before running the actual `git commit` command, create the approval marker: `touch /tmp/gtools-review-passed`. This tells the PreToolUse hook to allow the commit through without blocking again.
 3. **If `code-review` is not installed**:
+   - Create the approval marker: `touch /tmp/gtools-review-passed` (required so the PreToolUse hook allows the commit through).
    - Proceed with the commit as usual.
    - Mention in the final summary that the skill was not available and therefore no automated review was performed.
 
