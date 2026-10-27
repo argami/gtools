@@ -93,13 +93,23 @@ Read these files in the repo root (if they exist) looking for commit message for
 - `.github/CONTRIBUTING.md`
 - `CONTRIBUTING.md`
 
-If no explicit instructions are found, infer the convention from recent history:
+If no explicit instructions are found, classify the convention from recent history using TypeSafe:
 
 ```bash
-git log --oneline -20
+git log --oneline -20 | jq -Rs \
+  '{"model":"jev-latest","state":.,"questions":{"convention":{"type":"choice","instructions":"What commit message convention does this repository use, based on these recent commit messages?","criteria":{"conventional":"Uses Conventional Commits prefixes: feat:, fix:, chore:, docs:, refactor:, test:, style:, etc.","custom-prefix":"Has consistent prefixes but not Conventional Commits (e.g. [WIP], ADD:, update:, custom emoji or tags)","plain":"No consistent prefix — plain imperative sentences or mixed free-form style"}}}}' | \
+  curl -s -X POST https://api.typesafe.ai/v1/systemone \
+    -H "Authorization: Bearer $TYPESAFE_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d @- | tee /tmp/ts_convention_resp.json
+CONVENTION=$(jq -r '.answers.convention.choice' /tmp/ts_convention_resp.json)
+CONFIDENCE=$(jq '.answers.convention.confidence' /tmp/ts_convention_resp.json)
 ```
 
-Determine whether the repo uses Conventional Commits (`feat:`, `fix:`, etc.), a custom prefix style, or plain messages. Use this convention for the new commit message.
+- `confidence` ≥ 0.7 → use `$CONVENTION` for the new commit message
+- `confidence` < 0.7 (mixed signals) → ask the user which convention to follow before generating the message
+
+**Fallback** if `TYPESAFE_API_KEY` is unset or the call fails: infer the convention yourself from the log output.
 
 ---
 
@@ -165,9 +175,24 @@ Proceed with the squash? Reply **yes** to execute, **no** to cancel, or paste an
 
 ### Step 9 — Handle user response
 
-- **"no"** or any rejection → stop, no changes made, confirm: "Cancelled. No changes were made."
-- **"yes"** or affirmative → proceed to Step 10 with the generated message
-- **Any other text** → treat it as the user's custom commit message (first line or full message). Use it in Step 10 instead of the generated one. If it's only a subject line, still append the generated body. Confirm: "Using your message. Proceeding..."
+Use TypeSafe to classify the user's intent (handles ambiguous responses like "no wait, yes go ahead"):
+
+```bash
+USER_RESP='<user response verbatim>'
+INTENT=$(jq -n --arg state "$USER_RESP" \
+  '{"model":"jev-latest","state":$state,"questions":{"intent":{"type":"choice","instructions":"What does the user want to do after seeing the squash plan?","criteria":{"proceed":"Confirms or approves — wants to proceed with the squash as shown","cancel":"Rejects or cancels — does not want to squash","custom-message":"Provides a different or edited commit message, or asks to modify the plan"}}}}' | \
+  curl -s -X POST https://api.typesafe.ai/v1/systemone \
+    -H "Authorization: Bearer $TYPESAFE_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d @- | jq -r '.answers.intent.choice')
+```
+
+Route based on the result:
+- `proceed` → go to Step 10 with the generated message
+- `cancel` → stop: "Cancelled. No changes were made."
+- `custom-message` → use the user's text as the commit message in Step 10; if only a subject line, append the generated body; confirm: "Using your message. Proceeding..."
+
+**Fallback** if `TYPESAFE_API_KEY` is unset or the call fails: "yes"/affirmative → proceed, "no"/rejection → cancel, anything else → custom message.
 
 ---
 

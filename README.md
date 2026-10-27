@@ -150,11 +150,27 @@ gtools/
 
 Skill directories use kebab-case (e.g., `squash-branch`, `resolve-comments`). The exception is `update_timesheets` which uses underscores to match its slash command `/gtools:update_timesheets`.
 
+### TypeSafe Integration (optional)
+
+Several skills use [TypeSafe](https://typesafe.ai) to replace brittle keyword matching and LLM guessing with calibrated semantic judgments. Set `TYPESAFE_API_KEY` to enable; all skills fall back to their original behavior without it.
+
+| Skill | What TypeSafe handles | Fallback |
+|-------|----------------------|---------|
+| `update_timesheets` | Dry-run intent detection — catches any phrasing in any language | Keyword list (`dry-run`, `simular`, `prueba`, …) |
+| `squash-branch` | Commit convention classification (Conventional Commits vs. custom vs. plain) with confidence gate | Model infers from log output |
+| `squash-branch` | User approval routing — correctly handles ambiguous responses like "no wait, yes go ahead" | yes/no/else heuristic |
+| `team-lead` | Reviewer verdict parsing — works even if the Reviewer paraphrases or omits the exact emoji | Scans for `APPROVED` / `CHANGES REQUESTED` text |
+
+```bash
+export TYPESAFE_API_KEY=your_key_here
+```
+
 ### Dependencies
 
 - **GitHub skills** require `gh` CLI with write access to your repository
 - **BambooHR skill** requires credentials stored in `~/.timesheets_config.json` (persisted after first run)
 - **Team-lead skill** requires Claude Code with Agent Teams support (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`)
+- **TypeSafe features** require `TYPESAFE_API_KEY` env var (optional — all skills work without it)
 
 ---
 

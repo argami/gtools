@@ -21,12 +21,14 @@ Bulk resolve unresolved review threads using the `resolveReviewThread` GraphQL m
 ### Step 1 — Detect repo owner and name
 
 ```bash
-git remote get-url origin
+REMOTE_URL=$(git remote get-url origin)
+# Extract owner/repo from SSH (git@github.com:owner/repo.git) or HTTPS format
+OWNER_REPO=$(echo "$REMOTE_URL" | sed -E 's|.*github\.com[:/]([^/]+/[^/]+?)\.git$|\1|; s|.*github\.com[:/]([^/]+/[^/]+)$|\1|')
+OWNER=$(echo "$OWNER_REPO" | cut -d'/' -f1)
+REPO=$(echo "$OWNER_REPO" | cut -d'/' -f2)
 ```
 
-Parse `owner` and `repo` from the URL. Both formats work:
-- SSH: `git@github.com:owner/repo.git`
-- HTTPS: `https://github.com/owner/repo.git`
+Verify both `$OWNER` and `$REPO` are non-empty strings. If either is empty (enterprise GitHub URL, subgroup, or non-standard format), ask the user to provide the owner and repo name directly.
 
 ### Step 2 — Detect the PR number
 

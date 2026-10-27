@@ -604,6 +604,24 @@ REVIEW GATE:
   Follow the MESSAGING RELIABILITY rules below for this exchange (idle
   nudge on your side, ACK/resend on the Reviewer's side).
 
+  VERDICT PARSING — when a message arrives from "Reviewer", parse it with
+  TypeSafe instead of relying on exact string format (emoji variations or
+  paraphrasing can otherwise deadlock the orchestration):
+  ```bash
+  REVIEWER_MSG='<reviewer message verbatim>'
+  VERDICT=$(jq -n --arg state "$REVIEWER_MSG" \
+    '{"model":"jev-latest","state":$state,"questions":{"verdict":{"type":"choice","instructions":"What verdict did the reviewer give on this task?","criteria":{"approved":"The reviewer approves the changes and the task is ready to merge","changes-requested":"The reviewer found issues and is requesting changes before approval","unclear":"No clear verdict — reviewer may still be working or the message is incomplete"}}}}' | \
+    curl -s -X POST https://api.typesafe.ai/v1/systemone \
+      -H "Authorization: Bearer $TYPESAFE_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d @- | jq -r '.answers.verdict.choice')
+  ```
+  - `approved` → send ACK immediately, then proceed with Section 2 step 5 merge
+  - `changes-requested` → send ACK immediately, then follow ON ❌ CHANGES REQUESTED below
+  - `unclear` → send ACK, then reply to Reviewer: "Please confirm your verdict for <task-id> — approved or changes-requested?"
+
+  **Fallback** if `TYPESAFE_API_KEY` is unset or the call fails: scan the message text for `APPROVED` or `CHANGES REQUESTED` directly.
+
 ON ❌ CHANGES REQUESTED:
   YOU message the same developer (by their existing name) again with the
   same task, including the Reviewer's bullet list of issues. Do not advance

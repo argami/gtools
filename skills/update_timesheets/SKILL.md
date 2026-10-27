@@ -56,7 +56,22 @@ If the user includes any of these in their message, use them instead of stored/d
 - `session=<value>` → PHPSESSID
 - `csrf=<value>` → x-csrf-token
 - `employeeId=<value>` → employee ID (no default — see step 4 if not provided/stored)
-- `dry-run` / `dry run` / `simular` / `simulación` / `prueba` → enable dry-run mode (see step 6b)
+- **dry-run intent** — call TypeSafe with a Noul question (catches all phrasings in any language):
+  ```bash
+  USER_MSG='<user message verbatim>'
+  DRYRUN_PROB=$(jq -n --arg state "$USER_MSG" \
+    '{"model":"jev-latest","state":$state,"questions":{"dry_run":{"type":"noul","instructions":"Is the user asking to preview or simulate without actually submitting entries to BambooHR?"}}}' | \
+    curl -s -X POST https://api.typesafe.ai/v1/systemone \
+      -H "Authorization: Bearer $TYPESAFE_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d @- | jq '.answers.dry_run.noul')
+  ```
+  Interpret the returned probability (0–1):
+  - ≥ 0.7 → enable dry-run mode
+  - ≤ 0.3 → live mode
+  - between 0.3 and 0.7 → ask: "Do you want to preview only, or submit for real?"
+
+  **Fallback** if `TYPESAFE_API_KEY` is unset or the call fails: match keywords `dry-run`, `dry run`, `simular`, `simulación`, `prueba`, or any phrase explicitly meaning "don't send".
 - `verbose` / `-v` → show the actual `curl` command(s) being run (masking tokens). Without this, never print `curl` commands to the user, in dry-run or real mode.
 
 ## 4. Load or request credentials
@@ -166,7 +181,7 @@ Send one request per date (don't batch multiple dates into a single request). Ch
 
 ## 6b. Dry-run mode
 
-Trigger dry-run mode if the user's message contains `dry-run`, `dry run`, `simular`, `simulación`/`simulacion`, or `prueba` (in addition to any request that explicitly says "don't send it yet" / "no lo envíes todavía").
+Dry-run mode is triggered when the TypeSafe detection in step 3 returns a probability ≥ 0.7, or (on fallback) when the user's message contains `dry-run`, `dry run`, `simular`, `simulación`, `prueba`, or any explicit "don't send" phrase.
 
 In dry-run mode:
 
