@@ -59,57 +59,6 @@ Type `/gtools:` in Claude Code — you should see autocomplete suggestions for a
 
 ---
 
-## Usage Examples
-
-### Squash commits with auto-generated message
-```
-/gtools:squash-branch --base main
-```
-Shows a plan of commits to squash, generates a message, and waits for approval.
-
-### List unresolved PR review threads
-```
-/gtools:list-unresolved-comments
-```
-Fetches and displays all unresolved threads on the current PR.
-
-### Resolve all outdated review threads
-```
-/gtools:resolve-comments --outdated-only
-```
-Auto-resolves threads marked as both unresolved and outdated.
-
-### Submit timesheets for this week
-```
-/gtools:update_timesheets this week
-```
-Calculates shifts (Mon–Thu: 9–1, 2–6:30; Fri: 9–3) and submits to BambooHR. Supports natural language dates, ranges, and both English/Spanish.
-
-### Orchestrate a multi-developer task run
-```
-/gtools:team-lead /path/to/tasks.md
-```
-Spawns Developer-A, Developer-B, and Reviewer agents. Manages git worktrees, rebasing, and ff-only merges. See [`team-lead` docs](skills/team-lead) for full workflow.
-
-### Pre/post-commit automation
-Pre-commit and post-push review skills are **auto-triggered** by hooks:
-- Before every `git commit` → runs code-review, blocks commit until issues resolved
-- After every `git push` → watches CI, auto-fixes reported issues, re-pushes until clean
-
----
-
-## Skill Details
-
-For in-depth documentation on individual skills, see:
-
-- **[squash-branch](skills/squash-branch/README.md)** — Branch consolidation with linear history
-- **[update_timesheets](skills/update_timesheets/README.md)** — BambooHR timesheet automation
-- **[team-lead](skills/team-lead/README.md)** — Multi-agent task orchestration
-
-For other skills, documentation is embedded in their `SKILL.md` files (accessible via Claude Code or the skill itself).
-
----
-
 ## Architecture
 
 ### Plugin Structure
