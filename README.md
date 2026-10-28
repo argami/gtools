@@ -12,7 +12,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 [![GitHub](https://img.shields.io/badge/GitHub-argami%2Fgtools-181717?style=flat-square&logo=github)](https://github.com/argami/gtools)
 
-**[Get started](#quick-start) · [Explore skills](#skills) · [How it works](#automated-review-workflows) · [Contribute](#contributing)**
+**[Get started](#quick-start) · [Skills](#at-a-glance) · [Contribute](#contributing)**
 
 </div>
 
@@ -24,14 +24,15 @@ Designed to reduce repetitive coordination while keeping review gates and explic
 
 ## At a glance
 
-| Capability | What it does |
+| Skill | What it does |
 |:--|:--|
-| **Multi-agent orchestration** | Coordinate two developers and a reviewer with task dependencies, worktrees, and linear merges. |
-| **Review before commit** | Run a review-and-fix loop before allowing a commit. |
-| **Review after push** | Watch CI review results, fix reported issues, and push again. |
-| **Git and PR utilities** | Squash branches and manage unresolved PR review threads. |
-| **Timesheets** | Calculate and submit BambooHR timesheet entries. |
-| **Optional semantic decisions** | Use TypeSafe for selected intent and verdict classifications, with fallbacks. |
+| [**team-lead**](skills/team-lead/README.md) | Coordinate two developers and a reviewer with task dependencies, worktrees, and linear merges. |
+| [**pre-commit-review**](skills/pre-commit-review/SKILL.md) | Run a review-and-fix loop before allowing a commit. |
+| [**post-push-review**](skills/post-push-review/SKILL.md) | Watch CI review results, fix reported issues, and push again. |
+| [**squash-branch**](skills/squash-branch/README.md) | Consolidate branch commits into one after showing a plan and obtaining approval. |
+| [**list-unresolved-comments**](skills/list-unresolved-comments/SKILL.md) | List unresolved review threads on the current pull request. |
+| [**resolve-comments**](skills/resolve-comments/SKILL.md) | Resolve unresolved or outdated pull-request review threads in bulk. |
+| [**update_timesheets**](skills/update_timesheets/README.md) | Calculate and submit BambooHR timesheet entries. |
 
 > [!NOTE]
 > The pre-commit and post-push hooks run in an active Claude Code workflow. They are not a replacement for your repository's CI policies or human approval requirements.
@@ -74,18 +75,6 @@ claude --plugin-dir /path/to/gtools
 ```
 
 **Verify:** Type `/gtools:` in Claude Code. Autocomplete should display the seven available skills.
-
-## Skills
-
-| Skill | Purpose | Invocation |
-|:--|:--|:--|
-| [**team-lead**](skills/team-lead/README.md) | Run parallel development tasks with Developer-A, Developer-B, and a Reviewer; enforce rebase-only, fast-forward merges. | `/gtools:team-lead tasks.md` |
-| [**pre-commit-review**](skills/pre-commit-review/SKILL.md) | Review staged changes, fix issues iteratively, and gate commits. | Automatic hook |
-| [**post-push-review**](skills/post-push-review/SKILL.md) | Watch code-review CI, resolve findings, and repeat until clean or user input is required. | Automatic hook |
-| [**squash-branch**](skills/squash-branch/README.md) | Consolidate branch commits into one after showing a plan and obtaining approval. | `/gtools:squash-branch` |
-| [**list-unresolved-comments**](skills/list-unresolved-comments/SKILL.md) | List unresolved review threads on the current pull request. | `/gtools:list-unresolved-comments` |
-| [**resolve-comments**](skills/resolve-comments/SKILL.md) | Resolve unresolved or outdated pull-request review threads in bulk. | `/gtools:resolve-comments` |
-| [**update_timesheets**](skills/update_timesheets/README.md) | Submit BambooHR timesheets with automatic shift calculations. | `/gtools:update_timesheets` |
 
 ## Configuration and dependencies
 
