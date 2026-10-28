@@ -110,34 +110,6 @@ export TYPESAFE_API_KEY=your_key_here
 
 **TypeSafe is optional:** all supported skills retain their fallback behavior.
 
-## Repository structure
-
-```text
-gtools/
-├── README.md
-├── CLAUDE.md
-├── .claude-plugin/
-│   └── plugin.json
-├── hooks/
-│   └── hooks.json
-└── skills/
-    ├── squash-branch/
-    ├── resolve-comments/
-    ├── list-unresolved-comments/
-    ├── pre-commit-review/
-    │   └── src/
-    │       └── before-commit.sh
-    ├── post-push-review/
-    │   └── src/
-    │       └── after-push.sh
-    ├── update_timesheets/
-    └── team-lead/
-```
-
-The pre-commit script blocks commits without a matching review marker; the post-push script injects review context after pushes. Hook definitions use `${CLAUDE_PLUGIN_ROOT}` to resolve plugin-relative paths.
-
-**Naming convention:** skill directories use kebab-case, except `update_timesheets`, which retains underscores to match `/gtools:update_timesheets`.
-
 ## Contributing
 
 Contributions and new skills are welcome.
