@@ -1,6 +1,6 @@
-# gtools — GitHub Workflow Automation for Claude Code
+# gtools — AI Skills for Claude Code
 
-A Claude Code plugin providing specialized skills for GitHub workflow automation, branch management, and multi-agent task orchestration.
+A collection of AI-powered skills for Claude Code: automate git and PR workflows, manage code reviews, submit timesheets, and orchestrate multi-agent development tasks.
 
 ## Installation
 
