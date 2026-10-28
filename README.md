@@ -1,168 +1,241 @@
-# gtools — AI Skills for Claude Code
+<div align="center">
 
-A collection of AI-powered skills for Claude Code: automate git and PR workflows, manage code reviews, submit timesheets, and orchestrate multi-agent development tasks.
+<img src="assets/gtools-banner.png" alt="gtools — Agentic development for real workflows" width="100%" />
 
-## Installation
+# gtools
+
+### AI-powered development workflows for Claude Code
+
+**Orchestrate agents · Automate reviews · Streamline Git · Ship with confidence**
+
+[![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-8B5CF6?style=flat-square)](https://claude.ai/code)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-argami%2Fgtools-181717?style=flat-square&logo=github)](https://github.com/argami/gtools)
+
+**[Get started](#quick-start) · [Explore skills](#skills) · [How it works](#automated-review-workflows) · [Contribute](#contributing)**
+
+</div>
+
+---
+
+**gtools** is a collection of seven skills for [Claude Code](https://claude.ai/code). It brings Git and pull-request automation, iterative code reviews, multi-agent task orchestration, and timesheet management into your development workflow.
+
+Designed to reduce repetitive coordination while keeping review gates and explicit approvals where they matter.
+
+## At a glance
+
+| Capability | What it does |
+|:--|:--|
+| **Multi-agent orchestration** | Coordinate two developers and a reviewer with task dependencies, worktrees, and linear merges. |
+| **Review before commit** | Run a review-and-fix loop before allowing a commit. |
+| **Review after push** | Watch CI review results, fix reported issues, and push again. |
+| **Git and PR utilities** | Squash branches and manage unresolved PR review threads. |
+| **Timesheets** | Calculate and submit BambooHR timesheet entries. |
+| **Optional semantic decisions** | Use TypeSafe for selected intent and verdict classifications, with fallbacks. |
+
+> [!NOTE]
+> The pre-commit and post-push hooks run in an active Claude Code workflow. They are not a replacement for your repository's CI policies or human approval requirements.
+
+## Quick start
 
 ### Prerequisites
-- Claude Code (claude.ai/code, CLI, or desktop)
-- Git
-- GitHub CLI (`gh`) for GitHub-related skills
 
-### Option 1 — Direct install (no clone required)
+- [Claude Code](https://claude.ai/code) (CLI or desktop)
+- [Git](https://git-scm.com/)
+- [GitHub CLI (`gh`)](https://cli.github.com/) for GitHub-related skills
+
+### Install
+
+**Option A — Direct installation (no clone required)**
 
 ```bash
 claude --plugin-url https://github.com/argami/gtools/archive/refs/heads/main.zip
 ```
 
-### Option 2 — Add as personal marketplace
+**Option B — Personal plugin marketplace**
 
-```
+Run these commands inside Claude Code:
+
+```text
 /plugin marketplace add argami/gtools
-```
-
-Then install:
-
-```
 /plugin install gtools
 ```
 
-### Option 3 — From community marketplace (after approval)
+**Option C — Community marketplace (subject to approval)**
 
-```
+```text
 /plugin install gtools@claude-community
 ```
 
-### Option 4 — Local path (development)
+**Option D — Local development**
 
 ```bash
 claude --plugin-dir /path/to/gtools
 ```
 
-### Verify Installation
+**Verify:** Type `/gtools:` in Claude Code. Autocomplete should display the seven available skills.
 
-Type `/gtools:` in Claude Code — you should see autocomplete suggestions for all 7 skills.
+## Skills
 
----
+| Skill | Purpose | Invocation |
+|:--|:--|:--|
+| [**team-lead**](skills/team-lead/README.md) | Run parallel development tasks with Developer-A, Developer-B, and a Reviewer; enforce rebase-only, fast-forward merges. | `/gtools:team-lead tasks.md` |
+| [**pre-commit-review**](skills/pre-commit-review/SKILL.md) | Review staged changes, fix issues iteratively, and gate commits. | Automatic hook |
+| [**post-push-review**](skills/post-push-review/SKILL.md) | Watch code-review CI, resolve findings, and repeat until clean or user input is required. | Automatic hook |
+| [**squash-branch**](skills/squash-branch/README.md) | Consolidate branch commits into one after showing a plan and obtaining approval. | `/gtools:squash-branch` |
+| [**list-unresolved-comments**](skills/list-unresolved-comments/SKILL.md) | List unresolved review threads on the current pull request. | `/gtools:list-unresolved-comments` |
+| [**resolve-comments**](skills/resolve-comments/SKILL.md) | Resolve unresolved or outdated pull-request review threads in bulk. | `/gtools:resolve-comments` |
+| [**update_timesheets**](skills/update_timesheets/README.md) | Submit BambooHR timesheets with automatic shift calculations. | `/gtools:update_timesheets` |
 
-## Skills Overview
+### Example: multi-agent execution
 
-| Skill | Description |
-|-------|-------------|
-| [**squash-branch**](skills/squash-branch/README.md) | Consolidate all commits on the current branch into one with an auto-generated commit message. |
-| [**list-unresolved-comments**](skills/list-unresolved-comments/SKILL.md) | Fetch and display all unresolved review threads on the current PR. |
-| [**resolve-comments**](skills/resolve-comments/SKILL.md) | Bulk resolve unresolved (or outdated) review threads on a PR. |
-| [**pre-commit-review**](skills/pre-commit-review/SKILL.md) | Run code-review before every commit, iterate fixing issues. Auto-triggered by hook. |
-| [**post-push-review**](skills/post-push-review/SKILL.md) | Watch the code-review CI after push, auto-fix PR comments, re-push until clean. Auto-triggered by hook. |
-| [**update_timesheets**](skills/update_timesheets/README.md) | Submit BambooHR timesheet entries with automatic shift calculation. |
-| [**team-lead**](skills/team-lead/README.md) | Orchestrate multi-agent task execution with Developer-A, Developer-B, and Reviewer. |
-
----
-
-## Architecture
-
-### Plugin Structure
-
+```bash
+/gtools:team-lead tasks.md
 ```
+
+The team-lead skill reads a structured task plan, creates dedicated Git worktrees by default, assigns eligible work to two developer agents, and sends completed work through a reviewer. Approved work is integrated using a **linear, fast-forward-only history**.
+
+```mermaid
+flowchart TD
+    TL[Team Lead] -->|Assign eligible tasks| DA[Developer A]
+    TL -->|Assign eligible tasks| DB[Developer B]
+    DA --> RV[Reviewer]
+    DB --> RV
+    RV -->|Changes needed| RW[Rework]
+    RV -->|Approved| RB[Rebase + test]
+    RW --> RV
+    RB --> FM[Fast-forward merge]
+```
+
+**Built-in safeguards:** task dependencies, tests after rebases, serialized merges, and resumable progress checkpoints (`progress.md`).
+
+For the task-file format, worktree options, and recovery behavior, see the [team-lead guide](skills/team-lead/README.md).
+
+## Automated review workflows
+
+Two hooks are registered automatically when the plugin is installed. Both operate in an active Claude Code session.
+
+### Before commit: review gate
+
+**Trigger:** a Bash call to `git commit` or `rtk git commit`.
+
+```mermaid
+flowchart TD
+    A[Commit requested] --> B{Approval marker exists?}
+    B -->|Yes| C[Commit proceeds]
+    B -->|No| D[Block commit]
+    D --> E[Run pre-commit-review]
+    E --> F[Review staged changes]
+    F --> G{Findings?}
+    G -->|Yes| H[Fix findings]
+    H --> F
+    G -->|No| I[Create approval marker]
+    I --> C
+```
+
+The hook checks a marker under `/tmp/gtools-review-<sha256-hash>`, derived from the project path and staged diff. The marker must be created in a **separate Bash call** before retrying the commit, because the hook runs at the tool-call boundary.
+
+If the `code-review` skill is unavailable, the workflow permits the commit and reports that no automated review occurred. Unresolvable findings require user direction before proceeding.
+
+### After push: CI review loop
+
+**Trigger:** a Bash call to `git push` or `rtk git push`.
+
+```mermaid
+flowchart TD
+    A[Push] --> B[Watch code-review Action]
+    B --> C{Review findings?}
+    C -->|No| D[Done ✓]
+    C -->|Yes| E[Fix findings]
+    E --> F[Commit + push]
+    F --> B
+```
+
+Claude checks the latest `code-review` workflow run for the branch, reads PR findings, applies fixes, and repeats until the review passes cleanly. If an issue cannot be resolved safely, it stops and asks for guidance.
+
+> [!IMPORTANT]
+> The post-push workflow expects a GitHub Actions workflow named `code-review`. It does not create or modify your CI configuration, and it is not an unattended background service.
+
+**Hook configuration:** [`hooks/hooks.json`](hooks/hooks.json). Hooks can be disabled through Claude Code settings.
+
+## Configuration and dependencies
+
+| Feature | Requirement |
+|:--|:--|
+| GitHub and PR skills | Authenticated `gh` CLI with appropriate repository permissions |
+| Team orchestration | Claude Code Agent Teams enabled |
+| Timesheets | BambooHR credentials saved to `~/.timesheets_config.json` after initial setup |
+| TypeSafe integration | Optional `TYPESAFE_API_KEY` environment variable |
+| Review hooks | Plugin installed and hooks enabled |
+
+To enable Agent Teams for `team-lead`:
+
+```bash
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+claude --teammate-mode auto
+```
+
+### Optional: TypeSafe
+
+Selected skills integrate with [TypeSafe](https://typesafe.ai) for calibrated semantic decisions rather than relying solely on keyword matching or inferred intent.
+
+```bash
+export TYPESAFE_API_KEY=your_key_here
+```
+
+| Skill | TypeSafe responsibility | Fallback without API key |
+|:--|:--|:--|
+| `update_timesheets` | Detect dry-run intent across phrasings and languages | Keyword matching |
+| `squash-branch` | Classify commit-message conventions | Infer from Git history |
+| `squash-branch` | Interpret user approval or rejection | Yes/no heuristic |
+| `team-lead` | Parse reviewer verdicts | Match `APPROVED` / `CHANGES REQUESTED` |
+
+**TypeSafe is optional:** all supported skills retain their fallback behavior.
+
+## Repository structure
+
+```text
 gtools/
-├── README.md                          # This file
-├── CLAUDE.md                          # Developer guide
+├── README.md
+├── CLAUDE.md
 ├── .claude-plugin/
-│   └── plugin.json                    # Plugin metadata
+│   └── plugin.json
 ├── hooks/
-│   └── hooks.json                     # Pre/post-commit hook definitions (uses ${CLAUDE_PLUGIN_ROOT})
+│   └── hooks.json
 └── skills/
     ├── squash-branch/
     ├── resolve-comments/
     ├── list-unresolved-comments/
     ├── pre-commit-review/
     │   └── src/
-    │       └── before-commit.sh       # Blocks commit, checks /tmp/gtools-review-<sha256-hash> marker
+    │       └── before-commit.sh
     ├── post-push-review/
     │   └── src/
-    │       └── after-push.sh          # Injects post-push review context
+    │       └── after-push.sh
     ├── update_timesheets/
-    │   └── README.md                  # Detailed usage
     └── team-lead/
-        └── README.md                  # Workflow details
 ```
 
-### Naming Convention
+The pre-commit script blocks commits without a matching review marker; the post-push script injects review context after pushes. Hook definitions use `${CLAUDE_PLUGIN_ROOT}` to resolve plugin-relative paths.
 
-Skill directories use kebab-case (e.g., `squash-branch`, `resolve-comments`). The exception is `update_timesheets` which uses underscores to match its slash command `/gtools:update_timesheets`.
-
-### TypeSafe Integration (optional)
-
-Several skills use [TypeSafe](https://typesafe.ai) to replace brittle keyword matching and LLM guessing with calibrated semantic judgments. Set `TYPESAFE_API_KEY` to enable; all skills fall back to their original behavior without it.
-
-| Skill | What TypeSafe handles | Fallback |
-|-------|----------------------|---------|
-| `update_timesheets` | Dry-run intent detection — catches any phrasing in any language | Keyword list (`dry-run`, `simular`, `prueba`, …) |
-| `squash-branch` | Commit convention classification (Conventional Commits vs. custom vs. plain) with confidence gate | Model infers from log output |
-| `squash-branch` | User approval routing — correctly handles ambiguous responses like "no wait, yes go ahead" | yes/no/else heuristic |
-| `team-lead` | Reviewer verdict parsing — works even if the Reviewer paraphrases or omits the exact emoji | Scans for `APPROVED` / `CHANGES REQUESTED` text |
-
-```bash
-export TYPESAFE_API_KEY=your_key_here
-```
-
-### Dependencies
-
-- **GitHub skills** require `gh` CLI with write access to your repository
-- **BambooHR skill** requires credentials stored in `~/.timesheets_config.json` (persisted after first run)
-- **Team-lead skill** requires Claude Code with Agent Teams support (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`)
-- **TypeSafe features** require `TYPESAFE_API_KEY` env var (optional — all skills work without it)
-
----
-
-## Hooks
-
-gtools registers two Claude Code hooks that fire automatically — no manual invocation needed. They are active whenever the plugin is installed.
-
-### Pre-commit — code review gate
-
-**Trigger:** any `git commit` (or `rtk git commit`) Bash call.
-
-The hook checks for an approval marker at `/tmp/gtools-review-<sha256-hash>` (hash of project dir + staged diff). If absent, the commit is **blocked** and Claude is instructed to run `/gtools:pre-commit-review`, which:
-
-1. Runs the `code-review` skill on the staged changes (if installed)
-2. Iterates fixing any reported issues
-3. Creates the approval marker in a separate Bash call, then retries the commit
-
-The two-call pattern is required: the hook fires at the *tool-call boundary*, so the marker must exist before `git commit` runs.
-
-### Post-push — CI watch loop
-
-**Trigger:** any `git push` (or `rtk git push`) Bash call.
-
-After a push, the hook injects context prompting Claude to run `/gtools:post-push-review`, which watches the code-review GitHub Action, applies fixes, commits, and re-pushes until the Action passes.
-
-### Disabling
-
-Hook definitions live in [`hooks/hooks.json`](hooks/hooks.json) and can be disabled in Claude Code settings.
-
----
+**Naming convention:** skill directories use kebab-case, except `update_timesheets`, which retains underscores to match `/gtools:update_timesheets`.
 
 ## Contributing
 
-To add or modify skills:
+Contributions and new skills are welcome.
 
-1. Create a new directory under `skills/<skill-name>/`
-2. Write a `SKILL.md` file with frontmatter (metadata) and markdown body (step-by-step instructions)
-3. For complex skills, add a `README.md` for detailed usage docs
-4. Update `plugin.json` version if publishing
-5. Test via `/gtools:skill-name` in Claude Code
+1. Create `skills/<skill-name>/`.
+2. Add a `SKILL.md` with frontmatter metadata and step-by-step instructions.
+3. Add a detailed `README.md` for complex skills.
+4. Update the version in `.claude-plugin/plugin.json` when publishing.
+5. Test the skill via `/gtools:<skill-name>` in Claude Code.
 
-See [`CLAUDE.md`](CLAUDE.md) for developer guide and skill structure details.
-
----
-
-## License
-
-MIT
-
----
+See [CLAUDE.md](CLAUDE.md) for development conventions and skill structure.
 
 ## Support
 
-For issues or feature requests, open an issue in the repository.
+Found an issue or have an idea? [Open a GitHub issue](https://github.com/argami/gtools/issues).
+
+## License
+
+Released under the **MIT License**.
